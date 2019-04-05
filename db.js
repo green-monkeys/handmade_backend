@@ -7,7 +7,7 @@ const client = new Client({
 
 client.connect();
 
-export function testQuery() {
+function testQuery() {
   client.query(
     "SELECT table_schema, table_name FROM information_schema.tables;",
     (err, res) => {
@@ -19,3 +19,7 @@ export function testQuery() {
     }
   );
 }
+
+module.exports = {
+  testQuery
+};
