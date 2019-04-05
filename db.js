@@ -7,14 +7,17 @@ const client = new Client({
 
 client.connect();
 
-function testQuery() {
+function testQuery(req, res) {
   client.query(
     "SELECT table_schema, table_name FROM information_schema.tables;",
-    (err, res) => {
+    (err, dbRes) => {
       if (err) throw err;
-      for (let row of res.rows) {
-        console.log(JSON.stringify(row));
+
+      rows = [];
+      for (let row of dbRes.rows) {
+        rows += JSON.stringify(row);
       }
+      res.send(rows);
       client.end();
     }
   );
