@@ -17,7 +17,7 @@ function testQuery(req, res) {
       for (let row of dbRes.rows) {
         rows += JSON.stringify(row);
       }
-      res.send(JSON.stringify(rows));
+      res.send(JSON.stringify({ rows: rows }));
       client.end();
     }
   );
