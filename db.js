@@ -15,9 +15,9 @@ function testQuery(req, res) {
 
       rows = [];
       for (let row of dbRes.rows) {
-        rows.push(JSON.stringify(row));
+        rows.push(row);
       }
-      res.send(JSON.stringify({ rows: rows }));
+      res.status(200).json({ rows: rows });
       client.end();
     }
   );
