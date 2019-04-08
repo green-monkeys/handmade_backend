@@ -1,7 +1,8 @@
-const axios = require("axios");
-const fs = require("fs");
+import axios from 'axios';
+import fs from 'fs';
+import crypto from 'crypto';
+
 const credentials = JSON.parse(fs.readFileSync("credentials.json"));
-const crypto = require("crypto");
 const HOST = "mws.amazonservices.com";
 const ROUTES = {
   REPORTS: "/Reports/2009-01-01"
