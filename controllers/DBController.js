@@ -1,5 +1,5 @@
-const { Client } = require("pg");
-const fs = require("fs");
+import {Client} from 'pg';
+import fs from 'fs';
 const dbCredentials = JSON.parse(fs.readFileSync("credentials.json"));
 
 let client;
