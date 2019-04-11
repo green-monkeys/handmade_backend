@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 dotenv.config();
 import indexRouter from './routes/index';
-//import dbRouter from './routes/db';
+import dbRouter from './routes/db';
 import mwsRouter from './routes/mws';
 
 const app = express();
@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.use("/", indexRouter);
-//app.use("/db", dbRouter);
+app.use("/db", dbRouter);
 app.use("/mws", mwsRouter);
 
 app.listen(port, () => console.log(`Example app listening on port ${port}`));

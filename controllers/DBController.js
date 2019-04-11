@@ -1,23 +1,11 @@
 import {Client} from 'pg';
-import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const dbCredentials = JSON.parse(fs.readFileSync("credentials.json"));
-
-let client;
-if (process.env.DATABASE_URL) {
-    client = new Client({
-        connectionString: process.env.DATABASE_URL,
-        ssl: true
-    });
-} else {
-    client = new Client({
-        user: "maxwell",
-        host: "localhost",
-        database: "capstone",
-        password: dbCredentials.DB_PASSWORD,
-        port: 5432
-    });
-}
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true
+});
 
 client.connect();
 

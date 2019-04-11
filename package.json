@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon --exec babel-node --presets babel-preset-env app.js",
-    "test": "mocha --require babel-register tests/*.js --exit"
+    "test": "nyc mocha --require babel-register tests/*.js --exit"
   },
   "keywords": [],
   "author": "Maxwell Ray",
@@ -28,6 +28,7 @@
     "mocha": "^6.1.1",
     "nodemon": "^1.18.10",
     "regenerator-runtime": "^0.13.2",
-    "dotenv": "^7.0.0"
+    "dotenv": "^7.0.0",
+    "nyc": "^13.3.0"
   }
 }
