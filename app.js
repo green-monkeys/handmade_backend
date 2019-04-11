@@ -1,6 +1,8 @@
 import 'babel-polyfill';
 import express from 'express';
 import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+dotenv.config();
 import indexRouter from './routes/index';
 //import dbRouter from './routes/db';
 import mwsRouter from './routes/mws';

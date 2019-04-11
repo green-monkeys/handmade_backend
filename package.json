@@ -27,6 +27,7 @@
     "chai-http": "^4.2.1",
     "mocha": "^6.1.1",
     "nodemon": "^1.18.10",
-    "regenerator-runtime": "^0.13.2"
+    "regenerator-runtime": "^0.13.2",
+    "dotenv": "^7.0.0"
   }
 }
