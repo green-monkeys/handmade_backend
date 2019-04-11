@@ -27,7 +27,7 @@ function testQuery(req, res) {
         (err, dbRes) => {
             if (err) throw err;
 
-            rows = [];
+            let rows = [];
             for (let row of dbRes.rows) {
                 rows.push(row);
             }
