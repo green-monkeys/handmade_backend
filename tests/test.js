@@ -17,3 +17,21 @@ describe("index", () => {
         });
     });
 });
+describe("cga", () => {
+    describe("POST /", () => {
+        it("should create a new CGA.", (done) => {
+            chai.request(app)
+                .post('/cga')
+                .send({
+                    email: "testing_new_cga5@email.com",
+                    firstName: "Testing New5",
+                    lastName: "CGA"
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.data.should.have.keys(["RowCtor", "_parsers", "command", "fields", "oid", "rowAsArray", "rowCount", "rows"])
+                    done();
+                })
+        })
+    })
+});
