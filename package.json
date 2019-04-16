@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon --exec babel-node --require dotenv/config --presets babel-preset-env app.js",
+    "dev": "nodemon --exec babel-node --presets babel-preset-env app.js",
     "test": "nyc mocha --require babel-register --require dotenv/config tests/*.js --exit"
   },
   "keywords": [],
@@ -16,7 +16,8 @@
     "pg": "^7.9.0",
     "amazon-mws": "^0.0.23",
     "axios": "^0.18.0",
-    "body-parser": "^1.18.3"
+    "body-parser": "^1.18.3",
+    "express-validator": "^5.3.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
