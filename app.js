@@ -1,4 +1,4 @@
-require('babel-polyfill');
+import 'babel-polyfill';
 import express from 'express';
 import bodyParser from 'body-parser';
 import indexRouter from './routes/index';
