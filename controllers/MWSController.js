@@ -1,13 +1,8 @@
 import axios from 'axios';
-import fs from 'fs';
 import crypto from 'crypto';
 
-let credentials;
-if (process.env.TRAVIS === "true") {
-    credentials = process.env;
-} else {
-    credentials = JSON.parse(fs.readFileSync("credentials.json"));
-}
+let credentials = process.env;
+
 const HOST = "mws.amazonservices.com";
 const ROUTES = {
     REPORTS: "/Reports/2009-01-01"
