@@ -1,4 +1,5 @@
 import client from './DBClient';
+import {getImage} from './AWSController';
 
 export async function getCGA(req, res) {
     const response = await client.query(`SELECT * FROM cgas WHERE id=${req.params.cgaId}`);
@@ -38,9 +39,14 @@ export async function getArtisansForCGA(req, res) {
             data: response.rows.length > 0 ? response.rows : null
         })
     } catch (e) {
-        console.error(e)
+        console.error(e);
         res.status(500).json({
             error: e
         })
     }
+}
+
+export async function getCGAImage(req, res) {
+    const {email} = req.query;
+    getImage(res, 'cga', `${email}.jpg`);
 }
