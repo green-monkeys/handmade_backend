@@ -1,4 +1,5 @@
 import client from './DBClient';
+import {getImage} from './AWSController';
 
 export async function getArtisan(req, res) {
     const response = await client.query(`SELECT * FROM artisans WHERE id=${req.params.artisanId}`);
@@ -28,4 +29,9 @@ export async function getArtisanByEmail(req, res) {
     res.status(200).json({
         data: response.rows.length > 0 ? response.rows : null
     });
+}
+
+export async function getArtisanImage(req, res) {
+    const {username} = req.query;
+    getImage(res, 'artisan', `${username}.jpg`);
 }
