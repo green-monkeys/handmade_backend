@@ -6,7 +6,6 @@ var expect = require('chai').expect;
 chai.use(chaiHttp);
 chai.should();
 
-describe("cga", () => {
     describe("POST /cga", () => {
         it("should create a new CGA.", (done) => {
             chai.request(app)
@@ -123,6 +122,5 @@ describe("cga", () => {
                     done();
                 })
         })
-    })
+    });
 
-});
