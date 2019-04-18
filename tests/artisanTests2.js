@@ -42,7 +42,7 @@ describe("artisan", () => {
                     res.body.data[0]["salt"].should.equal('12345678');
                     res.body.data[0]["phone"].should.equal('18001231234');
                     res.body.data[0]["is_smart"].should.equal(true);
-                    console.log(res.body.data);
+                 //   console.log(res.body.data);
                     done();
                 })
         })
