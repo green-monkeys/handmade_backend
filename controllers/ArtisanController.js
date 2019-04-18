@@ -30,7 +30,7 @@ export async function removeArtisan(req, res) {
 
 export async function getArtisanByEmail(req, res) {
     const {username} = req.query;
-    const response = await (`SELECT * FROM artisans WHERE username=${username}`);
+    const response = await client.query(`SELECT * FROM artisans WHERE username='${username}'`);
     res.status(200).json({
         data: response.rows.length > 0 ? response.rows : null
     });
