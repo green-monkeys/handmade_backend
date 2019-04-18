@@ -9,11 +9,16 @@ export async function getArtisan(req, res) {
 }
 
 export async function addArtisan(req, res) {
-    const {cgaId, email, firstName, lastName, password, salt, phone, isSmart} = req.body;
-    const response = await client.query(`INSERT INTO artisans (cgaid, username, first_name, last_name, password, salt, phone, is_smart) VALUES (${cgaId},'${email}','${firstName}','${lastName}','${password}', '${salt}', '${phone}', ${isSmart})`);
-    res.status(200).json({
-        data: response
-    });
+    try {
+        const {cgaId, username, firstName, lastName, password, salt, phone, isSmart} = req.body;
+        const response = await client.query(`INSERT INTO artisans (cgaid, username, first_name, last_name, password, salt, phone, is_smart) VALUES (${cgaId},'${username}','${firstName}','${lastName}','${password}', '${salt}', '${phone}', ${isSmart})`);
+        res.status(200).json({
+            data: response
+        });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({message: e.message})
+    }
 }
 
 export async function removeArtisan(req, res) {
