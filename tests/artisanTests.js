@@ -42,15 +42,16 @@ describe("artisan", () => {
                     res.body.data[0]["salt"].should.equal('12345678');
                     res.body.data[0]["phone"].should.equal('18001231234');
                     res.body.data[0]["is_smart"].should.equal(true);
-                 //   console.log(res.body.data);
+                    console.log(res.body.data);
                     done();
                 })
         })
     });
 
+
     //delete artisan created here
     describe("GET /artisan?username=temporaryArtisan@email.com", () => {
-        it("get artisan by email ", (done) => {
+        it("should delete artisan ", (done) => {
             chai.request(app)
                 .get('/artisan?username=temporaryArtisan@email.com')
                 .end((err, res) => {
