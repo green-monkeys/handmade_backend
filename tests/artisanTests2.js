@@ -5,7 +5,6 @@ import app from '../app';
 chai.use(chaiHttp);
 chai.should();
 
-describe("artisan", () => {
     //will create cga for this test
     describe("POST /artisan", () => {
         it("should create a new artisan for CGA with id 2 ", (done) => {
@@ -67,5 +66,5 @@ describe("artisan", () => {
                     done();
                 })
         })
-    })
-});
+    });
+
