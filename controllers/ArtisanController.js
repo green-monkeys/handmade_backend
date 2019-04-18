@@ -4,7 +4,7 @@ import {getImage} from './AWSController';
 export async function getArtisan(req, res) {
     const response = await client.query(`SELECT * FROM artisans WHERE id=${req.params.artisanId}`);
     res.status(200).json({
-        data: response
+        data: response.rows ? response.rows[0] : null
     });
 }
 
@@ -28,15 +28,30 @@ export async function removeArtisan(req, res) {
     });
 }
 
-export async function getArtisanByEmail(req, res) {
+export async function getArtisanByUsername(req, res) {
     const {username} = req.query;
-    const response = await (`SELECT * FROM artisans WHERE username=${username}`);
+    const response = await client.query(`SELECT * FROM artisans WHERE username='${username}'`);
     res.status(200).json({
-        data: response.rows.length > 0 ? response.rows : null
+        data: response.rows ? response.rows[0] : null
     });
 }
 
 export async function getArtisanImage(req, res) {
     const {username} = req.query;
-    getImage(res, 'artisan', `${username}.jpg`);
+    try {
+        const data = await getImage(res, 'artisan', `${username}.jpg`);
+        res.writeHead(200, {'Content-Type': 'image/jpeg'});
+        res.write(data.Body, 'binary');
+        res.end(null, 'binary');
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({message: e.message});
+    }
+}
+
+export async function uploadArtisanImage(req, res) {
+    res.status(200).json({
+        message: "Successfully Uploaded!",
+        file: req.file
+    })
 }

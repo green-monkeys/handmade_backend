@@ -3,19 +3,21 @@ import {
     getArtisan,
     addArtisan,
     removeArtisan,
-    getArtisanByEmail,
-    getArtisanImage
+    getArtisanByUsername,
+    getArtisanImage,
+    uploadArtisanImage
 } from '../controllers/ArtisanController';
+import {upload} from "../controllers/AWSController";
 
 const artisanRouter = Router();
 
 artisanRouter.get('/image', getArtisanImage);
+artisanRouter.post('/image', upload.single('image'), uploadArtisanImage);
 
 artisanRouter.get("/:artisanId", getArtisan);
-artisanRouter.post('/', addArtisan);
 artisanRouter.delete('/:artisanId', removeArtisan);
 
-artisanRouter.get('/', getArtisanByEmail);
-
+artisanRouter.get('/', getArtisanByUsername);
+artisanRouter.post('/', addArtisan);
 
 export default artisanRouter;
