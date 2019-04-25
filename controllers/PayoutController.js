@@ -1,7 +1,9 @@
 import client from './DBClient';
 
 export async function getPayout(req, res) {
-    const response = await client.query(`SELECT * FROM payouts WHERE id=${req.params.payoutId}`);
+    //sanitize input by casting to int
+    let id =  parseInt(req.params.payoutId,10) || 0;
+    const response = await client.query(`SELECT FROM payouts WHERE id=${id}`);
     res.status(200).json({
         data: response
     });
@@ -16,7 +18,9 @@ export async function addPayout(req, res) {
 }
 
 export async function removePayout(req, res) {
-    const response = await client.query(`DELETE FROM payouts WHERE id=${req.params.payoutId}`);
+    //sanitize input by casting to int
+    let id =  parseInt(req.params.payoutId,10) || 0;
+    const response = await client.query(`DELETE FROM payouts WHERE id=${id}`);
     res.status(200).json({
         data: response
     });
