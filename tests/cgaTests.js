@@ -1,11 +1,12 @@
+
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import app from '../app';
-var expect = require('chai').expect;
 
 chai.use(chaiHttp);
 chai.should();
-///hi
+
+describe("cga", () => {
     describe("POST /cga", () => {
         it("should create a new CGA.", (done) => {
             chai.request(app)
@@ -17,7 +18,7 @@ chai.should();
                 })
                 .end((err, res) => {
                     res.should.have.status(200);
-                 //   res.body.data.should.have.keys(["RowCtor", "_parsers", "command", "fields", "oid", "rowAsArray", "rowCount", "rows"]);
+                    //   res.body.data.should.have.keys(["RowCtor", "_parsers", "command", "fields", "oid", "rowAsArray", "rowCount", "rows"]);
                     done();
                 })
         })
@@ -35,30 +36,13 @@ chai.should();
                 .end((err, res) => {
                     res.should.have.status(200);
                     //since we're not adding artisans to account
-                    expect(res.body.data).to.be.null;
+                    res.body.data.length.should.equal(0);
                     done();
                 })
         })
     });
 
-    describe("GET /cga/artisans?email=temporary@email.com", () => {
-        it("should return CGA's artisans.", (done) => {
-            chai.request(app)
-                .get('/cga/artisans')
-                .send({
-                    email: "temporary@email.com",
-                    firstName: "TestFirst",
-                    lastName: "CGA"
-                })
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    //since we're not adding artisans to account
-                    expect(res.body.data).to.be.null;
-                    done();
-                })
-        })
-    });
-    /* fails
+    /*
     describe("GET /cga/image?email=temporary@email.com", () => {
         it("should return CGA's image.", (done) => {
             chai.request(app)
@@ -71,7 +55,7 @@ chai.should();
                 })
         })
     });
-    */
+*/
 
 
     describe("GET /cga?email=temporary@email.com", () => {
@@ -97,6 +81,8 @@ chai.should();
         })
     });
 
+
+
     describe("GET /cga?email=temporary@email.com", () => {
         let id;
         it("should get CGA by email.", (done) => {
@@ -109,18 +95,16 @@ chai.should();
                     res.body.data['0']['last_name'].should.equal('CGA');
 
                     id = res.body.data['0']['id'];
-
                     //DELETE test CGA
                     chai.request(app)
                         .delete('/cga/' + id)
                         .end((err, res) => {
                             res.should.have.status(200);
-                            res.body.data['0']['email'].should.equal('temporary@email.com');
-                            res.body.data['0']['first_name'].should.equal('TestFirst');
-                            res.body.data['0']['last_name'].should.equal('CGA');
                         });
                     done();
-                })
-        })
-    });
+                });
 
+        })
+    })
+
+});
