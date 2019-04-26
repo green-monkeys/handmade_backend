@@ -3,5 +3,6 @@ package-lock.json
 credentials.json
 .idea/
 .vscode/
+.nyc_output/
 
 .env
