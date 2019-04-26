@@ -1,4 +1,4 @@
-import client from "./DBClient";
+import client from "../models/client";
 
 client.connect();
 

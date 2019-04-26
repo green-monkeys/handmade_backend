@@ -1,4 +1,4 @@
-import client from './DBClient';
+import client from '../models/client';
 
 export async function getPayout(req, res) {
     const response = await client.query(`SELECT * FROM payouts WHERE id=${req.params.payoutId}`);
