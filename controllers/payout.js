@@ -5,6 +5,11 @@ import {sendData, sendError} from "./responseHelper";
 export async function getPayout(req, res) {
     const {id} = req.params;
 
+    if(isNaN(id)) {
+        sendError(res, 404, `Incorrect ID format. Fuck off Zane.`);
+        return
+    }
+
     const payout = await payouts.getPayout(id);
 
     if (!payout) {
