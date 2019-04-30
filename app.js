@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import artisanRouter from "./routes/artisan";
 import cgaRouter from "./routes/cga";
 import payoutRouter from "./routes/payout";
+import mwsRouter from './routes/mws';
 import * as swaggerUi from 'swagger-ui-express';
 import {specs} from './swagger/jsDoc';
 
@@ -17,7 +18,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 //app.use("/", indexRouter);
 //app.use("/db", dbRouter);
-//app.use("/mws", mwsRouter);
+app.use("/mws", mwsRouter);
 
 app.use("/artisan", artisanRouter);
 app.use("/cga", cgaRouter);

@@ -82,7 +82,7 @@ export async function getCGA(req, res) {
 
     const {email} = req.query;
 
-    const response = await client.query(`SELECT * FROM cgas WHERE email='${email}'`);
+    const response = await pool.query(`SELECT * FROM cgas WHERE email='${email}'`);
 
     if (response.rowCount === 0) {
         sendError(res, 404, `Could not find CGA with email ${email}`);
@@ -99,7 +99,7 @@ export async function removeCGA(req, res) {
     }
 
     const {email} = req.query;
-    const response = await client.query(`SELECT * FROM cgas WHERE email='${email}'`);
+    const response = await pool.query(`SELECT * FROM cgas WHERE email='${email}'`);
 
     if (response.rowCount === 0) {
         sendError(res, 404, `Could not find CGA with email ${email}`);
@@ -112,7 +112,7 @@ export async function removeCGA(req, res) {
         await deleteImage(cga.image);
     }
 
-    await client.query(`DELETE FROM cgas WHERE email='${email}'`);
+    await pool.query(`DELETE FROM cgas WHERE email='${email}'`);
 
     sendData(res, cga);
 }
@@ -123,7 +123,7 @@ export async function getArtisansForCGA(req, res) {
     }
     const {email} = req.query;
 
-    const response = await client.query(`SELECT a.* FROM artisans a, cgas c WHERE a.cgaid = c.id AND c.email = '${email}'`);
+    const response = await pool.query(`SELECT a.* FROM artisans a, cgas c WHERE a.cgaid = c.id AND c.email = '${email}'`);
     if (response.rowCount === 0) {
         sendError(res, 404, `Unable to find any artisans registered under a CGA with email ${email}.`)
         return
@@ -132,8 +132,8 @@ export async function getArtisansForCGA(req, res) {
     let artisans = [];
     for (let i = 0; i < response.rowCount; i++) {
         const artisan = response.rows[i];
-        const owed = await client.query(`SELECT SUM(amount) as owed FROM payouts WHERE artisan = ${artisan.id} AND paid = false`);
-        const paid = await client.query(`SELECT SUM(amount) as paid FROM payouts WHERE artisan = ${artisan.id} AND paid = true`);
+        const owed = await pool.query(`SELECT SUM(amount) as owed FROM payouts WHERE artisan = ${artisan.id} AND paid = false`);
+        const paid = await pool.query(`SELECT SUM(amount) as paid FROM payouts WHERE artisan = ${artisan.id} AND paid = true`);
         artisans.push({
             ...artisan,
             owed: (owed.rowCount > 0) ? owed.rows[0].owed : 0.0,
@@ -153,14 +153,14 @@ export async function addCGAUnified(req, res) {
 
     const image = req.file.location;
 
-    const existingUsers = (await client.query(`SELECT * FROM cgas WHERE email='${email}'`)).rowCount;
+    const existingUsers = (await pool.query(`SELECT * FROM cgas WHERE email='${email}'`)).rowCount;
     if (existingUsers > 0) {
         sendError(res, 409, `A CGA with email ${email} already exists. Please use a different email.`);
         return
     }
 
-    await client.query(`INSERT INTO cgas (first_name, last_name, email, image) VALUES ('${firstName}', '${lastName}', '${email}', '${image}')`);
-    const response = (await client.query(`SELECT * FROM cgas WHERE email='${email}'`)).rows[0];
+    await pool.query(`INSERT INTO cgas (first_name, last_name, email, image) VALUES ('${firstName}', '${lastName}', '${email}', '${image}')`);
+    const response = (await pool.query(`SELECT * FROM cgas WHERE email='${email}'`)).rows[0];
 
     sendData(res, response);
 }

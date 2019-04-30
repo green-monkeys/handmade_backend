@@ -1,9 +1,9 @@
-import client from "../models/client";
+import pool from "../models/db";
 
-client.connect();
+pool.connect();
 
 function testQuery(req, res) {
-    client.query(
+    pool.query(
         "SELECT table_schema, table_name FROM information_schema.tables;",
         (err, dbRes) => {
             if (err) throw err;
@@ -13,7 +13,7 @@ function testQuery(req, res) {
                 rows.push(row);
             }
             res.status(200).json({rows: rows});
-            client.end();
+            pool.end();
         }
     );
 }

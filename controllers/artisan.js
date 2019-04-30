@@ -67,68 +67,17 @@ export async function addArtisan(req, res) {
 
     sendData(res, artisan);
 }
-/*
-export async function getArtisan(req, res) {
-    if (!idIsValid(req.params.id)) {
-        sendError(res, 400, `${req.params.id} is not an integer. Please provide an integer value for artisan ID.`);
+
+export async function usernameExists(req, res) {
+    const {username} = req.query;
+
+    if (!username) {
+        sendError(res, 400, "Invalid username. You need to provide the username as a flag in the query parameters.");
         return
     }
 
-    const id = parseInt(req.params.id);
 
-    const response = await client.query(`SELECT * FROM artisans WHERE id=${id}`);
+    const usernameExists = await db.usernameExists(username);
 
-    if (response.rowCount === 0) {
-        sendError(res, 404, `Could not find artisan with id ${id}`);
-        return
-    }
-
-    sendData(res, response.rows[0]);
+    sendData(res, {username_exists: usernameExists})
 }
-
-export async function removeArtisan(req, res) {
-    if (!idIsValid(req.params.id)) {
-        sendError(res, 400, `${req.params.id} is not an integer. Please provide an integer value for artisan ID.`);
-        return
-    }
-
-    const id = parseInt(req.params.id);
-    const response = await client.query(`SELECT * FROM artisans WHERE id=${id}`);
-
-    if (response.rowCount === 0) {
-        sendError(res, 404, `Could not find artisan with id ${id}`);
-        return
-    }
-
-    const artisan = response.rows[0];
-
-    if (artisan.image) {
-        await deleteImage(artisan.image);
-    }
-
-    await client.query(`DELETE FROM artisans WHERE id=${id}`);
-
-    sendData(res, artisan);
-}
-
-export async function addArtisan(req, res) {
-    const {cgaId, username, firstName, lastName, password, salt, phoneNumber, isSmart} = req.body;
-
-    if (!req.file) {
-        sendError(res, 400, "Unable to upload image to S3. Are you sure you attached it to the form with a key of 'image'?")
-    }
-
-    const image = req.file.location;
-
-    const existingUsers = (await client.query(`SELECT * FROM artisans WHERE username='${username}'`)).rowCount;
-    if (existingUsers > 0) {
-        sendError(res, 409, `A user with username ${username} already exists. Please pick another username.`)
-        return
-    }
-
-    await client.query(`INSERT INTO artisans (cgaid, username, first_name, last_name, password, salt, phone, is_smart, image) VALUES (${cgaId}, '${username}', '${firstName}', '${lastName}', '${password}', '${salt}', '${phoneNumber}', ${isSmart}, '${image}')`);
-    const response = (await client.query(`SELECT * FROM artisans WHERE username='${username}'`)).rows[0];
-
-    sendData(res, response);
-}
-*/

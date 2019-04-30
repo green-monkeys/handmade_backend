@@ -1,8 +1,11 @@
 import {Router} from 'express'
-import mws from '../util/mws';
+import {getReportCount, getSignature} from '../controllers/mws/reports';
+import reportRouter from './mws/reports';
+import productRouter from './mws/products';
 
 const mwsRouter = Router();
-mwsRouter.post("/list_mws_reports", mws.listMWSReports);
-mwsRouter.post("/hmac_encode", mws.hmacEncodeRequest);
+
+mwsRouter.use('/reports', reportRouter);
+mwsRouter.use('/products', productRouter);
 
 export default mwsRouter;
