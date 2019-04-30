@@ -4,6 +4,7 @@ import app from '../app';
 
 chai.use(chaiHttp);
 chai.should();
+/*
 describe("index", () => {
     describe("GET /", () => {
         it("should return an object.", (done) => {
@@ -18,7 +19,6 @@ describe("index", () => {
     });
 });
 
-/*
 describe("cga", () => {
     describe("POST /cga", () => {
         it("should create a new CGA.", (done) => {
