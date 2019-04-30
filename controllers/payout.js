@@ -1,13 +1,12 @@
-import {query} from '../models/db';
 import * as payouts from '../models/payout';
 import {sendData, sendError} from "./responseHelper";
-import {idIsValid} from "./requestHelper";
+import {dollarAmountIsValid, idIsValid} from "./requestHelper";
 
 export async function getPayout(req, res) {
     const {id} = req.params;
 
     if(!idIsValid(id)) {
-        sendError(res, 404, `Incorrect ID format.`);
+        sendError(res, 404, `Incorrect ID Format`);
         return
     }
 
@@ -32,12 +31,16 @@ export async function addPayout(req, res) {
         sendError(res, 400, `Invalid Artisan ID`);
         return;
     }
-
+    if(!dollarAmountIsValid(amount)) {
+        sendError(res, 400, `Invalid Payment Amount`);
+        return;
+    }
 
     const payout = await payouts.addPayout(cgaId, artisanId, amount);
 
     if(!payout) {
         sendError(res, 500, `Error inserting payout (${cgaId},${artisanId},${amount})`)
+        return
     }
 
     sendData(res, payout);

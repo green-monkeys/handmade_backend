@@ -22,3 +22,7 @@ export const emailIsValid = (email) => {
     const matches = email.match(r);
     return matches.length > 0;
 };
+
+export const dollarAmountIsValid = (amount) => {
+    return !isNaN(amount);
+}
