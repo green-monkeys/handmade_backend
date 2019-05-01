@@ -3,16 +3,17 @@ import {
     getCGA,
     removeCGA,
     getArtisansForCGA,
-    addCGA
+    addCGA,
+    validate
 } from '../controllers/cga';
 import {upload} from '../util/aws';
 
 const cgaRouter = Router();
 
-cgaRouter.get('/artisans', getArtisansForCGA);
+cgaRouter.get('/artisans', validate('getArtisansForCGA'), getArtisansForCGA);
 
-cgaRouter.get('/', getCGA);
-cgaRouter.delete('/', removeCGA);
-cgaRouter.post('/', upload.single('image'), addCGA);
+cgaRouter.get('/', validate('getCGA'), getCGA);
+cgaRouter.delete('/', validate('removeCGA'), removeCGA);
+cgaRouter.post('/', upload.single('image'), validate('addCGA'), addCGA);
 
 export default cgaRouter;

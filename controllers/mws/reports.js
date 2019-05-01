@@ -1,13 +1,15 @@
 import * as reports from '../../models/mws/reports';
+import {param, validationResult} from 'express-validator/check'
 import {sendData, sendError} from "../responseHelper";
 
 export async function getReport(req, res) {
-    const {id} = req.params;
-
-    if (!id) {
-        sendError(res, 400, "Invalid Report ID. Report ID needs to be passed as a URL parameter.");
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
         return;
     }
+
+    const {id} = req.params;
 
     const report = await reports.getReport(id);
 
@@ -33,3 +35,16 @@ export async function getReportList(req, res) {
 
     sendData(res, reportList)
 }
+
+export const validate = (method) => {
+    switch(method) {
+        case 'getReport':
+            return [
+                param('id')
+                    .exists().withMessage("is required")
+                    .isInt().withMessage("must be int")
+            ];
+        default:
+            return [];
+    }
+};

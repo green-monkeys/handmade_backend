@@ -1,40 +1,33 @@
-import {emailIsValid} from "./requestHelper";
 import {sendData, sendError} from "./responseHelper";
+import {body, query, validationResult} from 'express-validator/check';
 import {deleteImage} from "../util/aws";
 import * as db from '../models/cga';
+import {query as dbQuery} from '../models/db';
 
 export async function getCGA(req, res) {
-    if (!emailIsValid(req.query.email)) {
-        sendError(res, 400, `${req.query.email} is not a valid email.`);
-        return
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
+        return;
     }
 
     const {email} = req.query;
 
     const cga = await db.getCGA(email);
 
-    if (cga === null) {
-        sendError(res, 404, `Could not find CGA with email ${email}`);
-        return
-    }
-
     sendData(res, cga);
 }
 
 export async function removeCGA(req, res) {
-    if (!emailIsValid(req.query.email)) {
-        sendError(res, 400, `${req.query.email} is not a valid email.`);
-        return
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
+        return;
     }
 
     const {email} = req.query;
 
     const cga = await db.removeCGA(email);
-
-    if (cga === null) {
-        sendError(res, 404, `Could not find CGA with email ${email}`);
-        return
-    }
 
     if (cga.image) {
         await deleteImage(cga.image);
@@ -44,8 +37,10 @@ export async function removeCGA(req, res) {
 }
 
 export async function getArtisansForCGA(req, res) {
-    if (!emailIsValid(req.query.email)) {
-        sendError(res, 400, `${req.query.email} is not a valid email.`)
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
+        return;
     }
     const {email} = req.query;
 
@@ -55,7 +50,11 @@ export async function getArtisansForCGA(req, res) {
 }
 
 export async function addCGA(req, res) {
-    const {email} = req.body;
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
+        return;
+    }
 
     if (!req.file) {
         sendError(res, 400, "Unable to upload image to S3. Are you sure you attached it to the form with a key of 'image'?");
@@ -66,102 +65,52 @@ export async function addCGA(req, res) {
 
     const cga = await db.addCGA({...req.body, image});
 
-    if (cga === null) {
-        sendError(res, 409, `A CGA with email ${email} already exists. Please use a different email.`);
-        return
-    }
-
-    sendData(res, cga);
-}
-/*
-export async function getCGA(req, res) {
-    if (!emailIsValid(req.query.email)) {
-        sendError(res, 400, `${req.query.email} is not a valid email.`);
-        return
-    }
-
-    const {email} = req.query;
-
-    const response = await pool.query(`SELECT * FROM cgas WHERE email='${email}'`);
-
-    if (response.rowCount === 0) {
-        sendError(res, 404, `Could not find CGA with email ${email}`);
-        return
-    }
-
-    sendData(res, response.rows[0]);
-}
-
-export async function removeCGA(req, res) {
-    if (!emailIsValid(req.query.email)) {
-        sendError(res, 400, `${req.query.email} is not a valid email.`);
-        return
-    }
-
-    const {email} = req.query;
-    const response = await pool.query(`SELECT * FROM cgas WHERE email='${email}'`);
-
-    if (response.rowCount === 0) {
-        sendError(res, 404, `Could not find CGA with email ${email}`);
-        return
-    }
-
-    const cga = response.rows[0];
-
-    if (cga.image) {
-        await deleteImage(cga.image);
-    }
-
-    await pool.query(`DELETE FROM cgas WHERE email='${email}'`);
-
     sendData(res, cga);
 }
 
-export async function getArtisansForCGA(req, res) {
-    if (!emailIsValid(req.query.email)) {
-        sendError(res, 400, `${req.query.email} is not a valid email.`)
+export const validate = (method) => {
+    switch(method) {
+        case 'getCGA':
+        case 'removeCGA':
+        case 'getArtisansForCGA':
+            return [
+                query('email')
+                    .exists().withMessage("is required")
+                    .isEmail().withMessage("must be a valid email address")
+                    .customSanitizer(escapeSingleQuotes)
+                    .custom(emailDoesNotExist).withMessage("cga with that email not found")
+            ];
+        case 'addCGA':
+            return [
+                body('email')
+                    .exists().withMessage("is required")
+                    .isEmail().withMessage("must be a valid email address")
+                    .customSanitizer(escapeSingleQuotes)
+                    .custom(emailAlreadyExists).withMessage("email already exists in database"),
+                body('firstName')
+                    .exists().withMessage("is required")
+                    .customSanitizer(escapeSingleQuotes),
+                body('lastName')
+                    .exists().withMessage("is required")
+                    .customSanitizer(escapeSingleQuotes)
+            ];
+        default:
+            return []
     }
-    const {email} = req.query;
+};
 
-    const response = await pool.query(`SELECT a.* FROM artisans a, cgas c WHERE a.cgaid = c.id AND c.email = '${email}'`);
-    if (response.rowCount === 0) {
-        sendError(res, 404, `Unable to find any artisans registered under a CGA with email ${email}.`)
-        return
-    }
+const emailAlreadyExists = async (email) => {
+    const results = await dbQuery(`SELECT * FROM cgas WHERE email='${email}'`);
+    if (results.rowCount > 0)
+        return Promise.reject();
+    return Promise.resolve();
+};
 
-    let artisans = [];
-    for (let i = 0; i < response.rowCount; i++) {
-        const artisan = response.rows[i];
-        const owed = await pool.query(`SELECT SUM(amount) as owed FROM payouts WHERE artisan = ${artisan.id} AND paid = false`);
-        const paid = await pool.query(`SELECT SUM(amount) as paid FROM payouts WHERE artisan = ${artisan.id} AND paid = true`);
-        artisans.push({
-            ...artisan,
-            owed: (owed.rowCount > 0) ? owed.rows[0].owed : 0.0,
-            paid: (paid.rowCount > 0) ? paid.rows[0].paid : 0.0
-        })
-    }
+const emailDoesNotExist = async(email) => {
+    const results = await dbQuery(`SELECT * FROM cgas WHERE email='${email}'`);
+    if (results.rowCount > 0)
+        return Promise.resolve();
+    return Promise.reject();
+};
 
-    sendData(res, artisans);
-}
-
-export async function addCGAUnified(req, res) {
-    const {email, firstName, lastName} = req.body;
-
-    if (!req.file) {
-        sendError(res, 400, "Unable to upload image to S3. Are you sure you attached it to the form with a key of 'image'?")
-    }
-
-    const image = req.file.location;
-
-    const existingUsers = (await pool.query(`SELECT * FROM cgas WHERE email='${email}'`)).rowCount;
-    if (existingUsers > 0) {
-        sendError(res, 409, `A CGA with email ${email} already exists. Please use a different email.`);
-        return
-    }
-
-    await pool.query(`INSERT INTO cgas (first_name, last_name, email, image) VALUES ('${firstName}', '${lastName}', '${email}', '${image}')`);
-    const response = (await pool.query(`SELECT * FROM cgas WHERE email='${email}'`)).rows[0];
-
-    sendData(res, response);
-}
-*/
+const escapeSingleQuotes = value => value.replace(/'/g, '\'\'');

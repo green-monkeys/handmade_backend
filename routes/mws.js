@@ -1,5 +1,4 @@
 import {Router} from 'express'
-import {getReportCount, getSignature} from '../controllers/mws/reports';
 import reportRouter from './mws/reports';
 import productRouter from './mws/products';
 
