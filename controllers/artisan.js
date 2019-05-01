@@ -1,11 +1,13 @@
 import {deleteImage} from '../util/aws';
 import {sendData, sendError} from "./responseHelper";
-import {idIsValid} from "./requestHelper";
+import {body, query, param, validationResult} from 'express-validator/check';
+import {query as dbQuery} from '../models/db';
 import * as db from '../models/artisan';
 
 export async function getArtisan(req, res) {
-    if (!idIsValid(req.params.id)) {
-        sendError(res, 400, `${req.params.id} is not an integer. Please provide an integer value for artisan ID.`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
         return
     }
 
@@ -22,8 +24,9 @@ export async function getArtisan(req, res) {
 }
 
 export async function removeArtisan(req, res) {
-    if (!idIsValid(req.params.id)) {
-        sendError(res, 400, `${req.params.id} is not an integer. Please provide an integer value for artisan ID.`);
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
         return
     }
 
@@ -44,15 +47,19 @@ export async function removeArtisan(req, res) {
 }
 
 export async function addArtisan(req, res) {
-    const {username} = req.body;
-
-    if (username.length === 0) {
-        sendError(res, 400, "Invalid username. Username must be greater than 0 characters in length. The bar is set very low. Do better. Be ashamed of yourself.");
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
         return
     }
 
     if (!req.file) {
-        sendError(res, 400, "Unable to upload image to S3. Are you sure you attached it to the form with a key of 'image'? Artisan was not added to database.");
+        sendError(res, 400, {
+            location: "body",
+            param: "file",
+            value: "null",
+            msg: "could not upload file to s3. are you sure you attached it in the form data?"
+        });
         return
     }
 
@@ -61,7 +68,7 @@ export async function addArtisan(req, res) {
     const artisan = await db.addArtisan({...req.body, image});
 
     if (artisan === null) {
-        sendError(res, 409, `A user with username ${username} already exists. Please pick another username.`);
+        sendError(res, 409, `A user with username ${req.body.username} already exists. Please pick another username.`);
         return;
     }
 
@@ -81,3 +88,56 @@ export async function usernameExists(req, res) {
 
     sendData(res, {username_exists: usernameExists})
 }
+
+export const validate = (method) => {
+    switch(method) {
+        case 'usernameExists':
+            return [
+                query('username')
+                    .exists().withMessage("is required")
+                    .isLength({min: 1}).withMessage("must be at least 1 character long")
+                    .customSanitizer(escapeSingleQuotes),
+            ];
+        case 'addArtisan':
+            return [
+                body('cgaId')
+                    .exists().withMessage("is required")
+                    .isInt().withMessage("must be int"),
+                body('username')
+                    .exists().withMessage("is required")
+                    .isLength({min: 1}).withMessage("must be at least 1 character long")
+                    .customSanitizer(escapeSingleQuotes)
+                    .custom(usernameAlreadyExists).withMessage("already exists in database"),
+                body('firstName')
+                    .exists().withMessage("is required")
+                    .customSanitizer(escapeSingleQuotes),
+                body('lastName')
+                    .exists().withMessage("is required")
+                    .customSanitizer(escapeSingleQuotes),
+                body('password')
+                    .exists().withMessage("is required")
+                    .customSanitizer(escapeSingleQuotes),
+                body('phoneNumber')
+                    .exists().withMessage("is required")
+                    .customSanitizer(escapeSingleQuotes),
+                body('isSmart')
+                    .exists().withMessage("is required")
+                    .isBoolean().withMessage("must be boolean")
+            ];
+        case 'removeArtisan':
+        case 'getArtisan':
+            return [
+                param('id').exists().isInt()
+            ];
+        default:
+            return []
+    }
+};
+
+const usernameAlreadyExists = async (username) => {
+    const results = await dbQuery(`SELECT * FROM artisans WHERE username='${username}'`);
+    if (results.rowCount > 0)
+        return Promise.reject();
+    return Promise.resolve();
+};
+const escapeSingleQuotes = value => value.replace(/'/g, '\'\'');

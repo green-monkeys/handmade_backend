@@ -1,5 +1,6 @@
 import 'babel-polyfill';
 import express from 'express';
+import expressValidator from 'express-validator';
 import bodyParser from 'body-parser';
 import artisanRouter from "./routes/artisan";
 import cgaRouter from "./routes/cga";
@@ -14,10 +15,10 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+app.use(expressValidator());
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-//app.use("/", indexRouter);
-//app.use("/db", dbRouter);
 app.use("/mws", mwsRouter);
 
 app.use("/artisan", artisanRouter);
