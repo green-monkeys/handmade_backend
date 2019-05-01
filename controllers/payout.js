@@ -1,6 +1,7 @@
 import * as payouts from '../models/payout';
 import {body, param, validationResult} from 'express-validator/check';
 import {sendData, sendError} from "./responseHelper";
+import {query as dbQuery} from '../models/db';
 
 export async function getPayout(req, res) {
     const errors = validationResult(req);
@@ -71,10 +72,12 @@ export const validate = (method) => {
             return [
                 body('cgaId')
                     .exists().withMessage("is required")
-                    .isInt().withMessage("must be int"),
+                    .isInt().withMessage("must be int")
+                    .custom(idExists('cgas')).withMessage("cga id not found in database"),
                 body('artisanId')
                     .exists().withMessage("is required")
-                    .isInt().withMessage("must be int"),
+                    .isInt().withMessage("must be int")
+                    .custom(idExists("artisans")).withMessage("artisan id not found in database"),
                 body('amount')
                     .exists().withMessage("is required")
                     .isFloat().withMessage("must be float")
@@ -82,4 +85,11 @@ export const validate = (method) => {
         default:
             return []
     }
+};
+
+const idExists = idType => async (id) => {
+    const result = await dbQuery(`SELECT * FROM ${idType} WHERE id=${id}`);
+    if (result.rowCount > 0)
+        return Promise.resolve();
+    return Promise.reject();
 };
