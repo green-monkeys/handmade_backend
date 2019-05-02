@@ -35,7 +35,14 @@ export const addArtisan = async (information) => {
     const salt = await genSalt(10);
     const hashString = await hash(password, salt);
 
-    await query(`INSERT INTO artisans (cgaid, username, first_name, last_name, password, salt, phone, is_smart, image) VALUES (${cgaId}, '${username}', '${firstName}', '${lastName}', '${hashString}', '${salt}', '${phoneNumber}', ${isSmart}, '${image}')`);
+    let qStr;
+    if (image) {
+        qStr = `INSERT INTO artisans (cgaid, username, first_name, last_name, password, salt, phone, is_smart, image) VALUES (${cgaId}, '${username}', '${firstName}', '${lastName}', '${hashString}', '${salt}', '${phoneNumber}', ${isSmart}, '${image}')`;
+    } else {
+        qStr = `INSERT INTO artisans (cgaid, username, first_name, last_name, password, salt, phone, is_smart) VALUES (${cgaId}, '${username}', '${firstName}', '${lastName}', '${hashString}', '${salt}', '${phoneNumber}', ${isSmart})`;
+    }
+
+    await query(qStr);
     return (await query(`SELECT * FROM artisans WHERE username='${username}'`)).rows[0];
 
 };

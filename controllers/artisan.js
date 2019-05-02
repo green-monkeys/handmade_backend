@@ -53,17 +53,7 @@ export async function addArtisan(req, res) {
         return
     }
 
-    if (!req.file) {
-        sendError(res, 400, {
-            location: "body",
-            param: "file",
-            value: "null",
-            msg: "could not upload file to s3. are you sure you attached it in the form data?"
-        });
-        return
-    }
-
-    const image = req.file.location;
+    const image = (req.file) ? req.file.location : null;
 
     const artisan = await db.addArtisan({...req.body, image});
 
