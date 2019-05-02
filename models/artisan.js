@@ -1,4 +1,5 @@
 import {query} from './db';
+import {genSalt, hash} from 'bcrypt';
 
 export const getArtisan = async (id) => {
     const response = await query(`SELECT * FROM artisans WHERE id=${id}`);
@@ -24,15 +25,19 @@ export const removeArtisan = async (id) => {
 };
 
 export const addArtisan = async (information) => {
-    const {cgaId, username, firstName, lastName, password, salt, phoneNumber, isSmart, image} = information;
+    const {cgaId, username, firstName, lastName, password, phoneNumber, isSmart, image} = information;
 
     const existingUsers = (await query(`SELECT * FROM artisans WHERE username='${username}'`)).rowCount;
     if (existingUsers > 0) {
         return null
     }
 
-    await query(`INSERT INTO artisans (cgaid, username, first_name, last_name, password, salt, phone, is_smart, image) VALUES (${cgaId}, '${username}', '${firstName}', '${lastName}', '${password}', '${salt}', '${phoneNumber}', ${isSmart}, '${image}')`);
+    const salt = await genSalt(10);
+    const hashString = await hash(password, salt);
+
+    await query(`INSERT INTO artisans (cgaid, username, first_name, last_name, password, salt, phone, is_smart, image) VALUES (${cgaId}, '${username}', '${firstName}', '${lastName}', '${hashString}', '${salt}', '${phoneNumber}', ${isSmart}, '${image}')`);
     return (await query(`SELECT * FROM artisans WHERE username='${username}'`)).rows[0];
+
 };
 
 export const usernameExists = async (username) => {
