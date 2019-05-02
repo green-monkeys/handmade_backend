@@ -6,3 +6,5 @@ credentials.json
 .nyc_output/
 
 .env
+
+accessKeys.csv
