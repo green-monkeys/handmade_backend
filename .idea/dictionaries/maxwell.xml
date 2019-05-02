@@ -4,6 +4,7 @@
       <w>axios</w>
       <w>crypto</w>
       <w>hmac</w>
+      <w>multer</w>
       <w>unhashed</w>
     </words>
   </dictionary>

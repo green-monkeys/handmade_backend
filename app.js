@@ -25,6 +25,6 @@ app.use("/artisan", artisanRouter);
 app.use("/cga", cgaRouter);
 app.use("/payout", payoutRouter);
 
-app.listen(port, () => console.log(`Example app listening on port ${port}`));
+app.listen(port, () => console.log(`App listening on port ${port}`));
 
 export default app;

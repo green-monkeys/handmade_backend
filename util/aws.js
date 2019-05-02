@@ -3,7 +3,7 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 
 config.update({
-    region: 'us-west-2',
+    region: 'us-west-1',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     signatureVersion: 'v4'

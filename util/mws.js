@@ -7,7 +7,7 @@ const SIGNATURE_METHOD = 'HmacSHA256';
 const VERSION_2009_01_01 = '2009-01-01';
 
 const defaultParams = {
-    AWSAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    AWSAccessKeyId: process.env.MWS_AWS_ACCESS_KEY_ID,
     Merchant: process.env.SELLER_ID,
     MWSAuthToken: process.env.MWS_AUTH_TOKEN,
     SignatureVersion: SIGNATURE_VERSION,
