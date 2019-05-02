@@ -2,11 +2,12 @@ import 'babel-polyfill';
 import express from 'express';
 import expressValidator from 'express-validator';
 import bodyParser from 'body-parser';
+import * as swaggerUi from 'swagger-ui-express';
+
 import artisanRouter from "./routes/artisan";
 import cgaRouter from "./routes/cga";
 import payoutRouter from "./routes/payout";
 import mwsRouter from './routes/mws';
-import * as swaggerUi from 'swagger-ui-express';
 import {specs} from './swagger/jsDoc';
 
 const app = express();
