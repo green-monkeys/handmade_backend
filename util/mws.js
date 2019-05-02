@@ -1,5 +1,4 @@
 import axios from 'axios';
-import crypto from 'crypto';
 
 const HOST = "mws.amazonservices.com";
 const SIGNATURE_VERSION = 2;
