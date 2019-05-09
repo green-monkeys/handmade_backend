@@ -16,3 +16,10 @@ export const sendError = (res, status, message) => {
 export const sendData = (res, data) => {
     res.status(200).json({data})
 };
+
+export const sendPDF = (res, doc) => {
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
+    res.status(200);
+    doc.pipe(res);
+};

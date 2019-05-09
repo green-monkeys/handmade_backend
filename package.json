@@ -33,7 +33,9 @@
     "swagger-ui": "^3.22.1",
     "swagger-jsdoc": "^3.2.9",
     "mws-sdk-promises": "^1.1.0",
-    "bcrypt": "^3.0.6"
+    "bcrypt": "^3.0.6",
+    "pdfkit": "^0.9.1",
+    "voilab-pdf-table": "^0.4.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
