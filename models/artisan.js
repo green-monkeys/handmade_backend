@@ -1,5 +1,6 @@
 import {query} from './db';
-import {genSalt, hash} from 'bcrypt';
+import {genSalt, hash, compare} from 'bcrypt';
+
 
 export const getArtisan = async (id) => {
     const response = await query(`SELECT * FROM artisans WHERE id=${id}`);
@@ -11,6 +12,20 @@ export const getArtisan = async (id) => {
     const payoutList = (payouts.rowCount > 0) ? payouts.rows : [];
 
     return {...response.rows[0], payouts: payoutList};
+};
+
+export const getArtisanByUsername = async (username) => {
+    const response = await query(`SELECT * FROM artisans WHERE username='${username}'`);
+    if (response.rowCount === 0) {
+        return null
+    }
+
+    const artisan = response.rows[0];
+
+    const payouts = await query(`SELECT * FROM payouts WHERE artisan=${artisan.id}`);
+    const payoutList = (payouts.rowCount > 0) ? payouts.rows : [];
+
+    return {...artisan, payouts: payoutList};
 };
 
 export const removeArtisan = async (id) => {
@@ -45,6 +60,17 @@ export const addArtisan = async (information) => {
     await query(qStr);
     return (await query(`SELECT * FROM artisans WHERE username='${username}'`)).rows[0];
 
+};
+
+export const credentialsAreValid = async (username, password) => {
+    const artisan = await getArtisanByUsername(username);
+
+    if (!artisan) {
+        return false;
+    }
+
+    const result = await compare(password, artisan.password);
+    return result;
 };
 
 export const usernameExists = async (username) => {
