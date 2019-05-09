@@ -59,6 +59,26 @@ export async function removePayout(req, res) {
     sendData(res, payout);
 }
 
+export async function markPayout(req, res) {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
+        return
+    }
+
+    const {id} = req.params;
+    const {paid} = req.body;
+
+    const payout = await payouts.updatePayout(id, paid);
+
+    if(!payout) {
+        sendError(res, 404, `Couldn't find payout with id ${id}.`);
+        return
+    }
+
+    sendData(res, payout);
+}
+
 export const validate = (method) => {
     switch (method) {
         case 'getPayout':
@@ -67,6 +87,16 @@ export const validate = (method) => {
                 param('id')
                     .exists().withMessage("is required")
                     .isInt().withMessage("must be int")
+            ];
+        case 'markPayout':
+            return [
+                param('id')
+                    .exists().withMessage('is required')
+                    .isInt().withMessage("must be int")
+                    .custom(idExists('payouts')).withMessage('payout id not found in database'),
+                body('paid')
+                    .exists().withMessage('is required')
+                    .isBoolean().withMessage('must be bool')
             ];
         case 'addPayout':
             return [

@@ -23,6 +23,47 @@ export async function getArtisan(req, res) {
     sendData(res, artisan);
 }
 
+export async function getArtisanByUsername(req, res) {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
+        return;
+    }
+
+    const {username} = req.query;
+
+    const artisan = await db.getArtisanByUsername(username);
+
+    if (!artisan) {
+        sendError(res, 404, `Could not find artisan with username '${username}'.`)
+        return
+    }
+
+    sendData(res, artisan);
+}
+
+export async function login(req, res) {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        sendError(res, 400, errors.array());
+        return
+    }
+
+    const {username, password} = req.query;
+
+    const passwordMatches = await db.credentialsAreValid(username, password);
+
+    let response = {
+        loginIsValid: passwordMatches
+    };
+
+    if (passwordMatches) {
+        response.artisan = await db.getArtisanByUsername(username);
+    }
+
+    sendData(res, response)
+}
+
 export async function removeArtisan(req, res) {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -118,6 +159,18 @@ export const validate = (method) => {
         case 'getArtisan':
             return [
                 param('id').exists().isInt()
+            ];
+        case 'getArtisanByUsername':
+            return [
+                query('username').exists().withMessage('is required')
+                    .customSanitizer(escapeSingleQuotes)
+            ];
+        case 'login':
+            return [
+                query('username').exists().withMessage('is required')
+                    .customSanitizer(escapeSingleQuotes),
+                query('password').exists().withMessage('is required')
+                    .customSanitizer(escapeSingleQuotes)
             ];
         default:
             return []

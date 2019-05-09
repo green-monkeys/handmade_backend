@@ -29,3 +29,8 @@ export const removePayout = async (payoutId) => {
 
     return payout.rows[0];
 };
+
+export const updatePayout = async (payoutId, isPaid) => {
+    await query(`UPDATE payouts SET paid=${isPaid} WHERE id=${payoutId}`);
+    return await getPayout(payoutId);
+};
