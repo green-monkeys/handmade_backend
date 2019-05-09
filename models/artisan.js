@@ -48,6 +48,6 @@ export const addArtisan = async (information) => {
 };
 
 export const usernameExists = async (username) => {
-    const existingUsers = await query(`SELECT * FROM artisans WHERE username='${username}'`).rowCount;
-    return existingUsers > 0;
+    const existingUsers = await query(`SELECT * FROM artisans WHERE username='${username}'`);
+    return existingUsers.rowCount > 0;
 };
