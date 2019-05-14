@@ -7,137 +7,261 @@ chai.use(chaiHttp);
 chai.should();
 
 describe("artisan", () => {
-    //will create cga for this test
+    //will create artisan for this test
     describe("POST /artisan", () => {
-        it("should create a new artisan for CGA with id 2 ", (done) => {
+        it("should create a new artisan and return status code 200 ", (done) => {
             chai.request(app)
                 .post('/artisan')
-                .send({
-                    cgaId: "2",
-                    username: "temporaryArtisan@email.com",
-                    firstName: "TestFirst",
-                    lastName: "CGA",
-                    password: "pass",
-                    salt: "12345678",
-                    phone: "18001231234",
-                    isSmart: "true"
-                })
+                .type('form')
+                .field("cgaId", 2)
+                .field("username", "test_user9000")
+                .field("firstName", "test")
+                .field("lastName", "user")
+                .field("password", "avpoiadf83208")
+                .field("phoneNumber", "+15555049082")
+                .field("isSmart", false)
+                .attach('image' , __dirname + '/hqdefault.jpg')
                 .end((err, res) => {
+                    res.should.have.status(200);
+
+                    done();
+                })
+        })
+    });
+
+    describe("POST /artisan", () => {
+        it("should fail creating new artisan and return status code 400 ", (done) => {
+            chai.request(app)
+                .post('/artisan')
+                .type('form')
+                .field("cgaId", 2)
+                .field("username", "test_user9000")
+                .field("firstName", "test")
+                .field("lastName", "user")
+                .field("password", "avpoiadf83208")
+                .field("phoneNumber", "+15555049082")
+                .field("isSmart", false)
+                .end((err, res) => {
+                    res.should.have.status(400);
+
+                    done();
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("should verify login for artisan ", (done) => {
+            chai.request(app)
+                .get('/artisan/login?username=test_user9000&password=avpoiadf83208')
+                .end((err, res) => {
+                    res.body.data["loginIsValid"].should.equal(true);
+
                     res.should.have.status(200);
                     done();
                 })
         })
     });
 
-    describe("GET /artisan?username=temporaryArtisan@email.com", () => {
-        it("get artisan by email ", (done) => {
+    describe("GET /artisan", () => {
+        it("should fail at verifying login for artisan ", (done) => {
             chai.request(app)
-                .get('/artisan?username=temporaryArtisan@email.com')
+                .get('/artisan/login?username=test_user9000&password=notThePassword')
                 .end((err, res) => {
+                    res.body.data["loginIsValid"].should.equal(false);
                     res.should.have.status(200);
-                    res.body.data["cgaid"].should.equal(2);
-                    res.body.data["username"].should.equal('temporaryArtisan@email.com');
-                    res.body.data["first_name"].should.equal('TestFirst');
-                    res.body.data["last_name"].should.equal('CGA',);
-                    res.body.data["password"].should.equal('pass');
-                    res.body.data["salt"].should.equal('12345678');
-                    res.body.data["phone"].should.equal('18001231234');
-                    res.body.data["is_smart"].should.equal(true);
                     done();
                 })
         })
     });
 
-    describe("GET /artisan/:artisanId", () => {
-        it("get artisan by ID ", (done) => {
+    describe("GET /artisan", () => {
+        it("should fail at verifying login for artisan ", (done) => {
             chai.request(app)
-                .get('/artisan?username=temporaryArtisan@email.com')
+                .get('/artisan/login?username=test_user9000&passwordasd=notThePassword')
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    done();
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("should get artisan by username ", (done) => {
+            chai.request(app)
+                .get('/artisan?username=test_user9000')
+                .end((err, res) => {
+                    res.body.data["username"].should.equal('test_user9000');
+                    res.should.have.status(200);
+                    done();
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("should get artisan by username ", (done) => {
+            chai.request(app)
+                .get('/artisan?username=test_user9000')
+                .end((err, res) => {
+                    res.body.data["username"].should.equal('test_user9000');
+                    res.should.have.status(200);
+                    done();
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("get artisan by username should fail", (done) => {
+            chai.request(app)
+                .get('/artisan?username=test_user90asdDOESNTEXIST')
+                .end((err, res) => {
+                    res.body.message.should.equal("Could not find artisan with username " + "'test_user90asdDOESNTEXIST'.");
+                    res.should.have.status(404);
+                    done();
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("get artisan by username should fail", (done) => {
+            chai.request(app)
+                .get('/artisan?usernamaasdfase=test_user9000')
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    done();
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("checks if artisan by username exists ", (done) => {
+            chai.request(app)
+                .get('/artisan/username_exists?username=test_user9000')
+                .end((err, res) => {
+                    res.body.data["username_exists"].should.equal(true);
+                    res.should.have.status(200);
+                    done();
+
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("fails checks if artisan by username exists ", (done) => {
+            chai.request(app)
+                .get('/artisan/username_exists?')
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    done();
+
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("should get artisan by id ", (done) => {
+            chai.request(app)
+                .get('/artisan?username=test_user9000')
                 .end((err, res) => {
                     let id = res.body.data["id"];
                     res.should.have.status(200);
-                    res.body.data["cgaid"].should.equal(2);
-                    res.body.data["username"].should.equal('temporaryArtisan@email.com');
-                    res.body.data["first_name"].should.equal('TestFirst');
-                    res.body.data["last_name"].should.equal('CGA',);
-                    res.body.data["password"].should.equal('pass');
-                    res.body.data["salt"].should.equal('12345678');
-                    res.body.data["phone"].should.equal('18001231234');
-                    res.body.data["is_smart"].should.equal(true);
-
-                    chai.request(app).get("/artisan/" + id)
+                    chai.request(app)
+                        .get('/artisan/' + id)
                         .end((err,res)=>{
-                            res.body.data["cgaid"].should.equal(2);
-                            res.body.data["username"].should.equal('temporaryArtisan@email.com');
-                            res.body.data["first_name"].should.equal('TestFirst');
-                            res.body.data["last_name"].should.equal('CGA',);
-                            res.body.data["password"].should.equal('pass');
-                            res.body.data["salt"].should.equal('12345678');
-                            res.body.data["phone"].should.equal('18001231234');
-                            res.body.data["is_smart"].should.equal(true);
+                            res.should.have.status(200);
+                            done();
                         });
-                    done();
+
                 })
         })
     });
 
-    /*
-        //delete artisan created here
-        describe("POST /artisan/image", () => {
-            it("should upload image", (done) => {
-                chai.request(app)
-                    .get('/artisan?username=temporaryArtisan@email.com')
-                    .end((err, res) => {
-                        res.should.have.status(200);
-                        let id = res.body.data["id"];
-                        let curDir = process.cwd();
-                        chai.request(app)
-                            .post('/artisan/image?id=' + id)
-                            .attach(
-                                'image' , curDir + '/tests/testImage.jpg'
-                            )
-                            .end((err, res) => {
-                                res.body['message'].should.equal("Successfully Uploaded!");
-                                res.should.have.status(200);
-
-                                done();
-                            });
-                        done();
-                    })
-            })
-        });
-
-
-        describe("get /artisan/image", () => {
-            it("should get image ", (done) => {
-                chai.request(app)
-                    .get('/artisan/image?username=temporaryArtisan@email.com')
-                    .end((err, res) => {
-                        res.body['message'].should.equal("Successfully Uploaded!");
-                        res.should.have.status(200);
-
-                        done();
-                    })
-            })
-        }); */
-
-
-
-    //delete artisan created here
-    describe("DELETE /artisan?username=temporaryArtisan@email.com", () => {
-        it("should delete artisan ", (done) => {
+    describe("GET /artisan", () => {
+        it("should fail get artisan by id ", (done) => {
             chai.request(app)
-                .get('/artisan?username=temporaryArtisan@email.com')
+                .get('/artisan?username=test_user9000')
+                .end((err, res) => {
+                    let id = res.body.data["id"];
+                    res.should.have.status(200);
+                    chai.request(app)
+                        .get('/artisan/sfasd' + id)
+                        .end((err,res)=>{
+                            res.should.have.status(400);
+                            done();
+                        });
+
+                })
+        })
+    });
+
+    describe("GET /artisan", () => {
+        it("should fail get artisan by id ", (done) => {
+            chai.request(app)
+                .get('/artisan?username=test_user9000')
                 .end((err, res) => {
                     res.should.have.status(200);
-                    let id = res.body.data["id"];
+                    chai.request(app)
+                        .get('/artisan/' + 1)//should not exist
+                        .end((err,res)=>{
+                            res.should.have.status(404);
+                            done();
+                        });
 
+                })
+        })
+    });
+
+    describe("DELETE /artisan", () => {
+        it("delete artisan by id ", (done) => {
+            chai.request(app)
+                .get('/artisan?username=test_user9000')
+                .end((err, res) => {
+                    let id = res.body.data["id"];
+                    res.should.have.status(200);
                     chai.request(app)
                         .delete('/artisan/' + id)
-                        .end((err, res) => {
+                        .end((err,res)=>{
                             res.should.have.status(200);
+                            done();
                         });
-                    done();
+
                 })
         })
-    })
+    });
+
+    describe("DELETE /artisan", () => {
+        it("should fail delete artisan by id ", (done) => {
+            let failID = 1;
+            chai.request(app)
+                .delete('/artisan/' + failID) //should not exist
+                .end((err,res)=>{
+                    res.body.message.should.equal("Could not find artisan with id " + failID);
+                    res.should.have.status(404);
+                    done();
+                });
+        })
+    });
+
+    describe("DELETE /artisan", () => {
+        it("should fail delete artisan by id ", (done) => {
+            chai.request(app)
+                .delete('/artisan/asd') //should not exist
+                .end((err,res)=>{
+                    res.should.have.status(400);
+                    done();
+                });
+        })
+    });
+
+    //not important
+    describe("Get /", () => {
+        it("should fail ", (done) => {
+            chai.request(app)
+                .get('/asd') //should not exist
+                .end((err,res)=>{
+                    res.should.have.status(404);
+                    done();
+                });
+        })
+    });
+
 });
