@@ -1,5 +1,4 @@
 import {query} from './db';
-import {emailIsValid} from "../controllers/requestHelper";
 
 export const getCGA = async (email) => {
     const response = await query(`SELECT * FROM cgas WHERE email='${email}'`);

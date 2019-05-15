@@ -53,12 +53,10 @@ export async function login(req, res) {
 
     const passwordMatches = await db.credentialsAreValid(username, password);
 
-    let response = {
-        loginIsValid: passwordMatches
-    };
+    let response = "Invalid Login";
 
     if (passwordMatches) {
-        response.artisan = await db.getArtisanByUsername(username);
+        response = await db.getArtisanByUsername(username);
     }
 
     sendData(res, response)
