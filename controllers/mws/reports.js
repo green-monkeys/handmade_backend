@@ -11,9 +11,16 @@ export async function getReport(req, res) {
 
     const {id} = req.params;
 
-    const report = await reports.getReport(id);
+    try {
+        const report = await reports.getReport(id);
 
-    sendData(res, report)
+        sendData(res, report)
+    } catch (e) {
+        if (e.message === 'Rate Limit Exceeded') {
+            sendError(res, 429, 'Rate Limit Exceeded')
+        }
+        sendError(res, 500, `Error: ${e.message}`)
+    }
 }
 
 export async function getReportPDF(req, res) {
@@ -25,29 +32,50 @@ export async function getReportPDF(req, res) {
 
     const {id} = req.params;
 
-    const doc = await reports.getReportPDF(id);
+    try {
+        const doc = await reports.getReportPDF(id);
 
-    sendPDF(res, doc)
+        sendPDF(res, doc)
+    } catch (e) {
+        if (e.message === 'Rate Limit Exceeded') {
+            sendError(res, 429, 'Rate Limit Exceeded')
+        }
+        sendError(res, 500, `Error: ${e.message}`)
+    }
 }
 
 export async function getReportCount(req, res) {
-    const count = await reports.getReportCount();
+    try {
+        const count = await reports.getReportCount();
 
-    if (!count) {
-        sendError(res, 500, "Unable to retrieve report count.")
+        if (!count) {
+            sendError(res, 500, "Unable to retrieve report count.")
+        }
+
+        sendData(res, {count})
+    } catch (e) {
+        if (e.message === 'Rate Limit Exceeded') {
+            sendError(res, 429, 'Rate Limit Exceeded')
+        }
+        sendError(res, 500, `Error: ${e.message}`)
     }
-
-    sendData(res, {count})
 }
 
 export async function getReportList(req, res) {
-    const reportList = await reports.getReportList();
+    try {
+        const reportList = await reports.getReportList();
 
-    if (!reportList) {
-        sendData(res, [])
+        if (!reportList) {
+            sendData(res, [])
+        }
+
+        sendData(res, reportList)
+    } catch (e) {
+        if (e.message === 'Rate Limit Exceeded') {
+            sendError(res, 429, 'Rate Limit Exceeded')
+        }
+        sendError(res, 500, `Error: ${e.message}`)
     }
-
-    sendData(res, reportList)
 }
 
 export const validate = (method) => {
@@ -59,7 +87,7 @@ export const validate = (method) => {
                     .exists().withMessage("is required")
                     .isInt().withMessage("must be int")
                     .customSanitizer(escapeSingleQuotes)
-                    .custom(reportExists).withMessage("report id not valid")
+                    //.custom(reportExists).withMessage("report id not valid")
             ];
         default:
             return [];
