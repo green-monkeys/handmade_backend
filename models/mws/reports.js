@@ -1,6 +1,5 @@
 import mws from '../mws';
 import PDFDocument from 'pdfkit';
-import PDFTable from 'voilab-pdf-table';
 
 const config = {
     'Version': '2009-01-01',
@@ -31,13 +30,26 @@ export const getReport = async (reportId) => {
             data: dataRows
         };
     } catch (e) {
-        console.error(e.message);
-        return null;
+        if (e.message === undefined) {
+            throw new Error("Rate Limit Exceeded")
+        } else {
+            console.error(e.message);
+            return null;
+        }
     }
 };
 
 export const getReportPDF = async (reportId) => {
-    const report = await getReport(reportId);
+    let report;
+    try {
+        report = await getReport(reportId);
+    } catch (e) {
+        if (e.message === undefined) {
+            throw new Error("Rate Limit Exceeded")
+        } else {
+            throw e;
+        }
+    }
 
     const doc = new PDFDocument({
         autoFirstPage: false
@@ -83,19 +95,27 @@ export const getReportPDF = async (reportId) => {
 };
 
 export const getReportList = async () => {
-    const reports = await mws.reports.search({
-        ...config,
-        'Action': 'GetReportList',
-    });
-
-    return reports.ReportInfo ? reports.ReportInfo : null;
+    try {
+        const reports = await mws.reports.search({
+            ...config,
+            'Action': 'GetReportList',
+        });
+        return reports.ReportInfo ? reports.ReportInfo : null;
+    } catch (e) {
+        throw new Error("Rate Limit Exceeded");
+    }
 };
 
 export const getReportCount = async () => {
-    const reportCount = await mws.reports.search({
-        ...config,
-        'Action': 'GetReportCount',
-    });
+    try {
+        const reportCount = await mws.reports.search({
+            ...config,
+            'Action': 'GetReportCount',
+        });
 
-    return reportCount.Count ? reportCount.Count : null;
+        return reportCount.Count ? reportCount.Count : null;
+    } catch (e) {
+        throw new Error("Rate Limit Exceeded");
+
+    }
 };
