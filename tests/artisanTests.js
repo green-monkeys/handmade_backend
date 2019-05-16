@@ -54,8 +54,7 @@ describe("artisan", () => {
             chai.request(app)
                 .get('/artisan/login?username=test_user9000&password=avpoiadf83208')
                 .end((err, res) => {
-                    res.body.data["loginIsValid"].should.equal(true);
-
+                    res.body.data.should.not.equal("Invalid Login");
                     res.should.have.status(200);
                     done();
                 })
@@ -67,7 +66,7 @@ describe("artisan", () => {
             chai.request(app)
                 .get('/artisan/login?username=test_user9000&password=notThePassword')
                 .end((err, res) => {
-                    res.body.data["loginIsValid"].should.equal(false);
+                    res.body.data.should.equal("Invalid Login");
                     res.should.have.status(200);
                     done();
                 })
