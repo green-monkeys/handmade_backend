@@ -58,8 +58,19 @@ export const validate = (method) => {
                 param('id')
                     .exists().withMessage("is required")
                     .isInt().withMessage("must be int")
+                    .customSanitizer(escapeSingleQuotes)
+                    .custom(reportExists).withMessage("report id not valid")
             ];
         default:
             return [];
     }
 };
+
+const reportExists = async (reportId) => {
+    const reportList = await reports.getReportList();
+    if (!reportList.map(report => report.ReportId).includes(reportId)) {
+        return Promise.reject();
+    }
+    return Promise.resolve();
+};
+const escapeSingleQuotes = value => value.replace(/'/g, '\'\'');
