@@ -1,5 +1,15 @@
 import mws from '../mws';
 import PDFDocument from 'pdfkit';
+import PdfPrinter from 'pdfmake';
+const fonts = {
+    Roboto: {
+        normal: 'fonts/Roboto-Regular.ttf',
+        bold: 'fonts/Roboto-Medium.ttf',
+        italics: 'fonts/Roboto-Italic.ttf',
+        bolditalics: 'fonts/Roboto-MediumItalic.ttf'
+    }
+};
+const printer = new PdfPrinter(fonts);
 
 const config = {
     'Version': '2009-01-01',
@@ -37,6 +47,50 @@ export const getReport = async (reportId) => {
             return null;
         }
     }
+};
+
+export const getReportPDFMake = async (reportId) => {
+    let report;
+    try {
+        report = await getReport(reportId);
+    } catch (e) {
+        if (e.message === undefined) {
+            throw new Error("Rate Limit Exceeded")
+        } else {
+            throw e;
+        }
+    }
+
+    const docDefinition = {
+        pageOrientation: 'landscape',
+        content: [
+            {
+                image: 'public/images/handmade_logo.png',
+                width: 300,
+            },
+            {canvas: [{ type: 'line', x1: 0, y1: 5, x2: 595-2*40, y2: 5, lineWidth: 3 }]},
+            ...report.description,
+            {
+                style: 'table',
+                table: {
+                    body: [
+                        report.header.slice(0,12).map(cell => cell.replace(/^([a-z])|(?:[/ ])([a-z])/, (match, p1) => p1.toUpperCase())),
+                        ...report.data.map(row => row.slice(0,12))
+                    ]
+                }
+            }
+        ],
+        styles: {
+            table: {
+                margin: [0, 5, 0, 15]
+            }
+        }
+    };
+
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    pdfDoc.end();
+
+    return pdfDoc;
 };
 
 export const getReportPDF = async (reportId) => {
