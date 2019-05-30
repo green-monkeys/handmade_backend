@@ -1,6 +1,7 @@
 import mws from '../mws';
 import PDFDocument from 'pdfkit';
 import PdfPrinter from 'pdfmake';
+
 const fonts = {
     Roboto: {
         normal: 'fonts/Roboto-Regular.ttf',
@@ -49,6 +50,48 @@ export const getReport = async (reportId) => {
     }
 };
 
+const generateSKU = (length) => {
+    let result = '';
+
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const charactersLength = characters.length;
+    const numbers = '0123456789';
+    const numbersLength = numbers.length;
+
+    for (let i = 0; i < 3; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    for (let i = 3; i < length; i++) {
+        result += numbers.charAt(Math.floor(Math.random() * numbersLength));
+    }
+    return result;
+};
+
+const generateFakeData = (count) => {
+    let data = [];
+    for (let i = 0; i < count; i++) {
+        data.push([
+            new Date().toDateString(),
+            count - i,
+            ['Processing', 'Refund', 'Processed'][Math.floor(Math.random() * 3)],
+            count - i,
+            generateSKU(10),
+            'Description of Item',
+            Math.ceil(Math.random() * 100),
+            ['US', 'MX', 'CA'][Math.floor(Math.random() * 3)],
+            'Amazon',
+            ...[
+                ['Chicago', 'IL', 60007],
+                ['New York', 'NY', 10032],
+                ['San Francisco', 'CA', 94105],
+                ['Miami', 'FL', 33101]
+            ][Math.floor(Math.random() * 4)],
+            Math.ceil(Math.random() * 1000)
+        ])
+    }
+    return data;
+};
+
 export const getReportPDFMake = async (reportId) => {
     let report;
     try {
@@ -61,6 +104,10 @@ export const getReportPDFMake = async (reportId) => {
         }
     }
 
+    if (report.data.length === 0) {
+        report.data = generateFakeData(20)
+    }
+
     const docDefinition = {
         pageOrientation: 'landscape',
         content: [
@@ -68,14 +115,14 @@ export const getReportPDFMake = async (reportId) => {
                 image: 'public/images/handmade_logo.png',
                 width: 300,
             },
-            {canvas: [{ type: 'line', x1: 0, y1: 5, x2: 595-2*40, y2: 5, lineWidth: 3 }]},
+            {canvas: [{type: 'line', x1: 0, y1: 5, x2: 595 - 2 * 40, y2: 5, lineWidth: 3}]},
             ...report.description,
             {
                 style: 'table',
                 table: {
                     body: [
-                        report.header.slice(0,12).map(cell => cell.replace(/^([a-z])|(?:[/ ])([a-z])/, (match, p1) => p1.toUpperCase())),
-                        ...report.data.map(row => row.slice(0,12))
+                        report.header.slice(0, 12).map(cell => cell.replace(/^([a-z])|(?:[/ ])([a-z])/, (match, p1) => p1.toUpperCase())),
+                        ...report.data.map(row => row.slice(0, 12))
                     ]
                 }
             }
