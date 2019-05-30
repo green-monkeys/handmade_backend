@@ -33,7 +33,7 @@ export async function getReportPDF(req, res) {
     const {id} = req.params;
 
     try {
-        const doc = await reports.getReportPDF(id);
+        const doc = await reports.getReportPDFMake(id);
 
         sendPDF(res, doc)
     } catch (e) {
